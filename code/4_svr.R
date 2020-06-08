@@ -1,23 +1,6 @@
 #!/usr/bin/Rscript --vanilla
 source("lib_general_functions.R")
 source("lib_general_learners.R")
-library(quadprog)
-
-perfCR <- function(x, y){
-  Rinv <- solve(chol(t(x) %*% x))
-  C <- cbind(rep(1,ncol(Rinv)), diag(ncol(Rinv)))
-  b <- c(1, rep(0, ncol(Rinv)))
-  d <- t(y) %*% x
-  qsolve <- solve.QP(Dmat = Rinv, 
-                     factorized = TRUE, 
-                     dvec = d, 
-                     Amat = C, 
-                     bvec = b, 
-                     meq = 1)
-  weights <- qsolve$solution
-    
-  return(weights)
-}
 
 PerformBaseExperiments <- function(dfs, all.genes, parallel_ = TRUE){
   base.ilp.train <- dfs$base.ilp.train
@@ -83,23 +66,6 @@ PerformBaseExperiments <- function(dfs, all.genes, parallel_ = TRUE){
           ncolumns = length(avg.gene.perf),
           append = TRUE, 
           file = paste0("../output/svr/average.txt"))
-
-    # NNLS
-    ilp.y <- predict(svr.ilp.model, base.ilp.train)
-    fp.y <- predict(svr.fp.model, base.fp.train)
-    weights <- perfCR(cbind(ilp.y, fp.y), y.train.norm)
-    lm.preds <- rowSums(cbind(ilp.predictions, fp.predictions) %*% diag(weights))
-    lrf.perf <- GetPerformanceMetrics(y.test.norm, lm.preds)
-    lperf.metrics <- c(lrf.perf$rsquared, lrf.perf$mse, lrf.perf$rmse)
-    lgene.perf <- c(gene, lperf.metrics)
-    write(lgene.perf, 
-          ncolumns = length(lgene.perf),
-          append = TRUE, 
-          file = paste0("../output/svr/stacked_nnls.txt"))
-    write(weights, 
-          ncolumns = length(weights),
-          append = TRUE, 
-          file = paste0("../output/svr/nnls_weights.txt"))
   }
 }
 

@@ -9,23 +9,6 @@ library(randomForest)
 library(kernlab)
 library(caret)
 library(xgboost)
-library(quadprog)
-
-perfCR <- function(x, y){
-  Rinv <- solve(chol(t(x) %*% x))
-  C <- cbind(rep(1,ncol(Rinv)), diag(ncol(Rinv)))
-  b <- c(1, rep(0, ncol(Rinv)))
-  d <- t(y) %*% x
-  qsolve <- solve.QP(Dmat = Rinv, 
-                     factorized = TRUE, 
-                     dvec = d, 
-                     Amat = C, 
-                     bvec = b, 
-                     meq = 1)
-  weights <- qsolve$solution
-    
-  return(weights)
-}
 
 FitLasso <- function(x, y, parallel_ = TRUE){
   set.seed(65468)

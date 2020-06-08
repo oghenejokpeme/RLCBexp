@@ -66,23 +66,6 @@ PerformBaseExperiments <- function(dfs, all.genes, parallel_ = TRUE){
           ncolumns = length(avg.gene.perf),
           append = TRUE, 
           file = paste0("../output/rf/average.txt"))
-
-    # NNLS
-    ilp.y <- predict(rf.ilp.model, base.ilp.train)
-    fp.y <- predict(rf.fp.model, base.fp.train)
-    weights <- perfCR(cbind(ilp.y, fp.y), y.train.norm)
-    lm.preds <- rowSums(cbind(ilp.predictions, fp.predictions) %*% diag(weights))
-    lrf.perf <- GetPerformanceMetrics(y.test.norm, lm.preds)
-    lperf.metrics <- c(lrf.perf$rsquared, lrf.perf$mse, lrf.perf$rmse)
-    lgene.perf <- c(gene, lperf.metrics)
-    write(lgene.perf, 
-          ncolumns = length(lgene.perf),
-          append = TRUE, 
-          file = paste0("../output/rf/stacked_nnls.txt"))
-    write(weights, 
-          ncolumns = length(weights),
-          append = TRUE, 
-          file = paste0("../output/rf/nnls_weights.txt"))
   }
 }
 
