@@ -1,6 +1,22 @@
 #!/usr/bin/Rscript --vanilla
 library(data.table)
 
+# Generate cross validation indices where n is the number of samples.
+GenerateCvIndices <- function(n, folds=5){
+  set.seed(37465)
+  indices <- split(sample(1:n), rep(1:folds, length = n))
+
+  return(indices)
+}
+
+GenerateTestIndices <- function(sample.number, percent.split = 0.30){
+  sample.size <- floor(percent.split * sample.number)
+  set.seed(89573)
+  test.indices <- sample(seq_len(sample.number), size = sample.size)
+
+  return(test.indices) 
+}
+
 # Get general peformance metrics. 
 GetPerformanceMetrics <- function(y.actual, y.predicted){
   rsquared <- 1 - (sum((y.actual - y.predicted)^2) / 
